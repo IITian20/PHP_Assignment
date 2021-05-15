@@ -9,6 +9,7 @@ require_once "config.php";
     // Performing all checks
     if($_SERVER["REQUEST_METHOD"]== "POST"){
         $name_check = "/^[A-Za-z]+[A-Za-z \.'\,\-]*[A-Za-z\.]+$/";
+        $username_check = "/^[A-z._0-9]+$/";
         $smallLetter = "/[a-z]/";
         $capitalLetter = "/[A-Z]/";
         $numberPassword = "/[0-9]/";
@@ -19,19 +20,24 @@ require_once "config.php";
         }
         else{
             if(strlen($_POST["name"]) < 3){
-                $name_err = "Enter a valid name! Name should have 3 minimum chracters.";
+                $name_err = "Enter a valid name! Name should have minimum 3 chracters.";
             }
             else{
                 $name = $_POST["name"];
                 $name_err = "";
             }
         }
-        if(empty(trim($_POST["username"]))){
-            $username_err = "Username cannot be empty!";
+        if(preg_match($username_check, $_POST["username"]) == 0){
+            $username_err = "Enter a valid username! Only letters, numbers, . , _ , are allowed.";
         }
         else{
-            $username = $_POST["username"];
-            $username_err = "";
+            if(strlen($_POST["name"]) < 3){
+                $username_err = "Enter a valid username! Usernnme should have minimum 3 chracters.";
+            }
+            else{
+                $username_err = $_POST["username"];
+                $username_err = "";
+            }
         }
         if(preg_match($smallLetter, $_POST["password"])==1){
             $x = $x + 1;
@@ -90,7 +96,6 @@ require_once "config.php";
     mysqli_close($conn);
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -104,7 +109,6 @@ require_once "config.php";
         @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&display=swap');
 
         body{
-            background-color: #f8d16c;
             font-family: 'Lato', sans-serif;
             margin: 0px;
             padding-bottom: 50px;
@@ -141,7 +145,6 @@ require_once "config.php";
             padding-top: 20px;
         }
         a{
-            margin-left: 41%;
             font-size: 20px;
             color:grey;
             
@@ -160,6 +163,7 @@ require_once "config.php";
             color: #032957;
         }
         .form{
+            display: flex;
             justify-content: center;
             padding-left: 30px;
         }
@@ -168,58 +172,74 @@ require_once "config.php";
         }
         .button{
             padding: 10px;
-            margin-left: 45%;
             margin-bottom: 30px;
             font-family: 'Playfair Display';
-            background-color: white;
+            background-color: rgb(235,235,235);
             font-size: 30px;
             font-weight: 500;
             box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
-            border: 0px;
+            border: 1px solid black;
         }
         .button:hover{
             background-color:  #b5cff0;
         }
+        .button1{
+            display: flex;
+            justify-content: center;
+            align-self:baseline;
+        }
+        .sign_up_box{
+            background-color: rgb(235,235,235);
+            border: 2px solid black;
+            padding: 50px;
+        }
     </style>
 </head>
 <body>
-    <h1 class="h1"><span class="heading">Sign Up</span></h1>
+    <h1 class="h1"><span class="heading">Sign Up</span></h1><br><br>
     <div class="form">
         <form autocomplete="off" action="" method="POST">
-            <label class="label" for="name">
-                Name:
-            </label><br><br>
-            <input  type="text" id="name" name="name" maxlength="30" size="40" placeholder="Name"><br><br>
-            <p id="name_err"><?php if(!empty($name_err)){ echo $name_err; } ?></p>
-            <br><br>
-            <label class="label" for="username">
-                Username:
-            </label><br><br>
-            <input  type="text" id="username" name="username" maxlength="30" size="40" placeholder="Username">
-            <br><br>
-            <p id="username_err"><?php if(!empty($username_err)){ echo $username_err; } ?></p>
-            <br><br>
-            <label class="label" for="password">
-                Password:
-            </label><br><br>
-            <input  type="password" id="password" name="password" size="15" value="" placeholder="Password">
-            <br><br>
-            <div class="err">
-            <p id="pass_err"><?php if(!empty($password_err1)){ echo $password_err1; } ?></p><br><br><br>
-            <p id="pass_err"><?php if(!empty($password_err2)){ echo $password_err2; } ?></p><br><br><br>
-            <p id="pass_err"><?php if(!empty($password_err3)){ echo $password_err3; } ?></p><br><br><br>
-            <p id="pass_err"><?php if(!empty($password_err4)){ echo $password_err4; } ?></p>
+            <div class="sign_up_box">
+                    <label class="label" for="name">
+                        Name:
+                    </label><br><br>
+                    <input  type="text" id="name" name="name" maxlength="30" size="15" placeholder="Name"><br><br>
+                    <p id="name_err"><?php if(!empty($name_err)){ echo $name_err; } ?></p>
+                    <br><br>
+                    <label class="label" for="username">
+                        Username:
+                    </label><br><br>
+                    <input  type="text" id="username" name="username" maxlength="30" size="15" placeholder="Username">
+                    <br><br>
+                    <p id="username_err"><?php if(!empty($username_err)){ echo $username_err; } ?></p>
+                    <br><br>
+                    <label class="label" for="password">
+                        Password:
+                    </label><br><br>
+                    <input  type="password" id="password" name="password" size="15" value="" placeholder="Password">
+                    <br><br>
+                    <div class="err">
+                    <p id="pass_err"><?php if(!empty($password_err1)){ echo $password_err1; } ?></p><br><br><br>
+                    <p id="pass_err"><?php if(!empty($password_err2)){ echo $password_err2; } ?></p><br><br><br>
+                    <p id="pass_err"><?php if(!empty($password_err3)){ echo $password_err3; } ?></p><br><br><br>
+                    <p id="pass_err"><?php if(!empty($password_err4)){ echo $password_err4; } ?></p>
+                    </div>
+                    <br><br>
+                    <label class="label" for="cpassword">
+                        Confirm Password:
+                    </label><br><br>
+                    <input  type="password" id="cpassword" name="cpassword" size="15" value="" placeholder="Confirm Password">
+                    <br><br>
+                    <p id="c_pass_err"><?php if(!empty($confirm_password_err)){ echo $confirm_password_err; } ?></p>
             </div>
+            
             <br><br>
-            <label class="label" for="cpassword">
-                Confirm Password:
-            </label><br><br>
-            <input  type="password" id="cpassword" name="cpassword" size="15" value="" placeholder="Confirm Password">
-            <br><br>
-            <p id="c_pass_err"><?php if(!empty($confirm_password_err)){ echo $confirm_password_err; } ?></p>
-            <br><br>
-            <input name="submit" type="submit" value="Sign Up" class="button">
-            <br><br><a href="login.php">Already have an account. Sign In here.</a>
+            <div class="button1">
+                <input name="submit" type="submit" value="Sign Up" class="button">
+            </div>
+            <br><div class="button1">
+                <a href="login.php">Already have an account. Sign In here.</a>
+            </div>
         </form>
     </div>
 </body>
