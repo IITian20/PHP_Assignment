@@ -42,7 +42,7 @@ session_start();
     </style>
 </head>
 <body>
-    <?php if(!$_SESSION["Name"]){header("location: login.php");} ?>
+    <?php if($_SESSION["Login"]==0){ $_SESSION["Login"]=0; header("location: login.php"); } ?>
     <h1>Welcome <?php echo $_SESSION["Name"]; ?></h1>
     <a href="logout.php">Log Out</a>
 </body>

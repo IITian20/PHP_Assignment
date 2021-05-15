@@ -8,7 +8,7 @@ require_once "config.php";
     $message = "";
     $value = "none";
     $value1 = "inline";
-    
+    $_SESSION["Login"] = 0;
     unset($_SESSION["Username"]);
     unset($_SESSION["Name"]);
 
@@ -35,7 +35,8 @@ require_once "config.php";
                         setcookie("Password","", time() - 3600);
                     }
                 }
-                header('location: main.php');
+                $_SESSION["Login"] = 1;
+                header('location: profile.php');
             }
             else{
                 $message = "Invalid Credentials!! Try Again or Create an account if you don't have.";
@@ -121,7 +122,7 @@ require_once "config.php";
             font-size: 30px;
             font-weight: 500;
             box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
-            border: 0px;
+            border: 1px solid black;
         }
         .button:hover{
             background-color:  #b5cff0;
@@ -132,16 +133,23 @@ require_once "config.php";
             align-self:baseline;
         }
         .login_box{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             background-color: rgb(235,235,235);
             border: 2px solid black;
             padding: 50px;
+        }
+        .extra{
+            display: flex;
+            justify-content: space-evenly;
         }
     </style>
 </head>
 <body>
     <h1 class="h1"><span class="heading">Login</span></h1><br><br>
     <div class="form">
-        <form autocomplete="off" action="" method="POST">
+        <form action="" method="POST">
             <div class="login_box">
                 <label class="label" for="username">
                     Username:
@@ -154,10 +162,15 @@ require_once "config.php";
                 </label><br><br>
                 <input  type="password" id="password" name="password" size="15" value="" placeholder="Password">
                 <br><br><br>
-                <input type="checkbox" id="remember" name="remember">
-                <label class="label label2" for="remember">
-                    Remember Username
-                </label>
+                <div class="extra">
+                    <div>
+                        <input type="checkbox" id="remember" name="remember">
+                        <label class="label label2" for="remember">
+                            Remember Username
+                        </label>
+                    </div>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="forget_pass.php">Forgot Password?</a>
+                </div>
             </div>
             <br><br>
             <div class="button1"> 

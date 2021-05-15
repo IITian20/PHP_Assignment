@@ -1,10 +1,14 @@
 <?php
-
+session_start();
 require_once "config.php";
-    $username = $name = $password = "";
-    $username_err = $name_err = $password_err1 = $password_err2 = $password_err3 = $password_err4 = $confirm_password_err = "";
+    $username = $name = $password = $date = "";
+    $username_err = $name_err = $password_err1 = $password_err2 = $password_err3 = $password_err4 = $confirm_password_err = $date_err = "";
     $value = "none";
     $value1 = "inline";
+
+
+    unset($_SESSION["Username"]);
+    unset($_SESSION["Name"]);
 
     // Performing all checks
     if($_SERVER["REQUEST_METHOD"]== "POST"){
@@ -14,6 +18,9 @@ require_once "config.php";
         $capitalLetter = "/[A-Z]/";
         $numberPassword = "/[0-9]/";
         $specialCharacter = "/[\W_]/";
+
+        $date = $_POST["date"];
+
         $x = 0;
         if(preg_match($name_check, $_POST["name"]) == 0){
             $name_err = "Enter a valid name! Only letters and whitespace are allowed.";
@@ -31,11 +38,11 @@ require_once "config.php";
             $username_err = "Enter a valid username! Only letters, numbers, . , _ , are allowed.";
         }
         else{
-            if(strlen($_POST["name"]) < 3){
+            if(strlen($_POST["username"]) < 3){
                 $username_err = "Enter a valid username! Usernnme should have minimum 3 chracters.";
             }
             else{
-                $username_err = $_POST["username"];
+                $username = $_POST["username"];
                 $username_err = "";
             }
         }
@@ -71,10 +78,13 @@ require_once "config.php";
             $confirm_password = $_POST["cpassword"];
             $confirm_password_err = "";
         }
+        if(empty($date)){
+            $date_err = "Date cannot be empty!";
+        }
         
         
         // storing in database
-        if(empty($name_err) && empty($username_err) && empty($password_err1) && empty($confirm_password_err)){
+        if(empty($name_err) && empty($username_err) && empty($password_err1) && empty($confirm_password_err) && empty($date_err)){
             $sql = "SELECT * FROM divyansh_user WHERE username='$username'";
 
             $result = mysqli_query($conn, $sql);
@@ -85,9 +95,13 @@ require_once "config.php";
             }
             else{
                 $hash = password_hash($password, PASSWORD_DEFAULT);
-                $sql = "INSERT INTO divyansh_user (name, username, password) VALUES ('$name', '$username', '$hash')";
+                $sql = "INSERT INTO divyansh_user (name, username, password, dob) VALUES ('$name', '$username', '$hash', '$date')";
                 if(mysqli_query($conn, $sql)){
-                    header('location: login.php');
+                    $_SESSION["Username"] = $username;
+                    $_SESSION["Name"] = $name;
+                    $_SESSION["DOB"] = $date;
+                    $_SESSION["Login"] = 1;
+                    header('location: profile.php');
                 }
             }
         } 
@@ -136,6 +150,10 @@ require_once "config.php";
         }
         #c_pass_err{
             display: <?php if(empty($confirm_password_err)){ echo $value; } else { echo $value1;}  ?>;
+        }
+
+        #date_err{
+            display: <?php if(empty($date_err)){ echo $value; } else { echo $value1;}  ?>;
         }
         .h1{
             text-align: center;
@@ -198,7 +216,7 @@ require_once "config.php";
 <body>
     <h1 class="h1"><span class="heading">Sign Up</span></h1><br><br>
     <div class="form">
-        <form autocomplete="off" action="" method="POST">
+        <form action="" method="POST">
             <div class="sign_up_box">
                     <label class="label" for="name">
                         Name:
@@ -212,6 +230,13 @@ require_once "config.php";
                     <input  type="text" id="username" name="username" maxlength="30" size="15" placeholder="Username">
                     <br><br>
                     <p id="username_err"><?php if(!empty($username_err)){ echo $username_err; } ?></p>
+                    <br><br>
+                    <label class="label" for="date">
+                        Date of birth:
+                    </label><br><br>
+                    <input  type="date" id="date" name="date" maxlength="30" size="15" placeholder="dd-mm-yyyy">
+                    <br><br>
+                    <p id="date_err"><?php if(!empty($date_err)){ echo $date_err; } ?></p>
                     <br><br>
                     <label class="label" for="password">
                         Password:
