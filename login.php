@@ -9,6 +9,9 @@ require_once "config.php";
     $value = "none";
     $value1 = "inline";
     
+    unset($_SESSION["Username"]);
+    unset($_SESSION["Name"]);
+
     if($_SERVER["REQUEST_METHOD"]=="POST"){
         $sql = "SELECT * FROM divyansh_user WHERE username='$username'";
         $result = mysqli_query($conn, $sql);
@@ -59,13 +62,11 @@ require_once "config.php";
         @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&display=swap');
 
         body{
-            background-color: #f8d16c;
             font-family: 'Lato', sans-serif;
             margin: 0px;
         }
         p{
             border: 2px solid red;
-            margin-left: 33%;
             background-color: rgb(254, 241, 211);
             padding: 10px;
             color: red;
@@ -74,7 +75,6 @@ require_once "config.php";
             font-size: 20px;
         }
         a{
-            margin-left: 41%;
             font-size: 20px;
             color:grey;
             
@@ -106,6 +106,7 @@ require_once "config.php";
             font-size: 20px;
         }
         .form{
+            display: flex;
             justify-content: center;
             padding-left: 30px;
         }
@@ -114,10 +115,9 @@ require_once "config.php";
         }
         .button{
             padding: 10px;
-            margin-left: 46%;
             margin-bottom: 30px;
             font-family: 'Playfair Display';
-            background-color: white;
+            background-color: rgb(235,235,235);
             font-size: 30px;
             font-weight: 500;
             box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
@@ -126,32 +126,50 @@ require_once "config.php";
         .button:hover{
             background-color:  #b5cff0;
         }
+        .button1{
+            display: flex;
+            justify-content: center;
+            align-self:baseline;
+        }
+        .login_box{
+            background-color: rgb(235,235,235);
+            border: 2px solid black;
+            padding: 50px;
+        }
     </style>
 </head>
 <body>
-    <h1 class="h1"><span class="heading">Login</span></h1>
+    <h1 class="h1"><span class="heading">Login</span></h1><br><br>
     <div class="form">
         <form autocomplete="off" action="" method="POST">
-            <label class="label" for="username">
-                Username:
-            </label><br><br>
-            <input  type="text" id="username" name="username" maxlength="30" size="40" placeholder="Username" value="<?php if(isset($_COOKIE["Username"])){ echo $_COOKIE["Username"];} ?>">
+            <div class="login_box">
+                <label class="label" for="username">
+                    Username:
+                </label><br><br>
+                <input  type="text" id="username" name="username" maxlength="30" size="15" placeholder="Username" value="<?php if(isset($_COOKIE["Username"])){ echo $_COOKIE["Username"];} ?>">
+                <br><br>
+                <br><br>
+                <label class="label" for="password">
+                    Password:
+                </label><br><br>
+                <input  type="password" id="password" name="password" size="15" value="" placeholder="Password">
+                <br><br><br>
+                <input type="checkbox" id="remember" name="remember">
+                <label class="label label2" for="remember">
+                    Remember Username
+                </label>
+            </div>
             <br><br>
-            <br><br>
-            <label class="label" for="password">
-                Password:
-            </label><br><br>
-            <input  type="password" id="password" name="password" size="15" value="<?php if(isset($_COOKIE["Password"])){ if($_COOKIE["Password"]){ echo password_needs_rehash($_COOKIE["Password"],PASSWORD_DEFAULT);} else{echo "";}} ?>" placeholder="Password">
-            <br><br><br>
-            <input type="checkbox" id="remember" name="remember">
-            <label class="label label2" for="remember">
-                Remember Me
-            </label>
-            <br><br>
-            <p class = "err"><?php if(!empty($message)){ echo "$message";}?></p>
-            <br><br>
-            <input name="submit" type="submit" value="Log In" class="button">
-            <br><br><a href="sign_up.php">Don't have an account? Sign Up here.</a>
+            <div class="button1"> 
+                <p class = "err"><?php if(!empty($message)){ echo "$message";}?></p>
+            </div>
+            <br>
+            <div class="button1">
+                <input name="submit" type="submit" value="Log In" class="button">
+            </div>
+            <div class="button1">
+                <a href="sign_up.php">Don't have an account? Sign Up here.</a>
+            </div>
         </form>
     </div>
 </body>
