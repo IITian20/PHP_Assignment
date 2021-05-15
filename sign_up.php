@@ -5,11 +5,9 @@ require_once "config.php";
     $username_err = $name_err = $password_err1 = $password_err2 = $password_err3 = $password_err4 = $confirm_password_err = "";
     $value = "none";
     $value1 = "inline";
-    $count = 0;
 
     // Performing all checks
     if($_SERVER["REQUEST_METHOD"]== "POST"){
-        $count = 1;
         $name_check = "/^[A-Za-z]+[A-Za-z \.'\,\-]*[A-Za-z\.]+$/";
         $smallLetter = "/[a-z]/";
         $capitalLetter = "/[A-Z]/";
@@ -67,33 +65,31 @@ require_once "config.php";
             $confirm_password = $_POST["cpassword"];
             $confirm_password_err = "";
         }
-    }
+        
+        
+        // storing in database
+        if(empty($name_err) && empty($username_err) && empty($password_err1) && empty($confirm_password_err)){
+            $sql = "SELECT * FROM divyansh_user WHERE username='$username'";
 
+            $result = mysqli_query($conn, $sql);
 
-    // storing in database
-    if(empty($name_err) && empty($username_err) && empty($password_err1) && empty($confirm_password_err) && $count==1){
-        $sql = "SELECT * FROM divyansh_user WHERE username='$username'";
-
-        $result = mysqli_query($conn, $sql);
-
-        $num = mysqli_num_rows($result);
-
-        if($num==1){
-            if($count==1){
+            $num = mysqli_num_rows($result);
+            if($num==1){
                 $username_err = "Username already exits!!";
-                $count = 0;
             }
-        }
-        else{
-            $sql = "INSERT INTO divyansh_user (name, username, password) VALUES ('$name', '$username', '$password')";
-            if(mysqli_query($conn, $sql)){
-                header('location: login.php');
+            else{
+                $hash = password_hash($password, PASSWORD_DEFAULT);
+                $sql = "INSERT INTO divyansh_user (name, username, password) VALUES ('$name', '$username', '$hash')";
+                if(mysqli_query($conn, $sql)){
+                    header('location: login.php');
+                }
             }
-        }
-    }   
+        } 
+    }
 
     mysqli_close($conn);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -111,6 +107,7 @@ require_once "config.php";
             background-color: #f8d16c;
             font-family: 'Lato', sans-serif;
             margin: 0px;
+            padding-bottom: 50px;
         }
         p{
             border: 2px solid red;
@@ -142,6 +139,15 @@ require_once "config.php";
             font-family: 'Playfair Display';
             margin-top: 0px;
             padding-top: 20px;
+        }
+        a{
+            margin-left: 41%;
+            font-size: 20px;
+            color:grey;
+            
+        }
+        a:hover{
+            color: rgb(90, 112, 134);
         }
         .heading{
             border-bottom: 2px solid #032957;
@@ -212,7 +218,8 @@ require_once "config.php";
             <br><br>
             <p id="c_pass_err"><?php if(!empty($confirm_password_err)){ echo $confirm_password_err; } ?></p>
             <br><br>
-            <input name="submit" type="submit" value="Submit" class="button">
+            <input name="submit" type="submit" value="Sign Up" class="button">
+            <br><br><a href="login.php">Already have an account. Sign In here.</a>
         </form>
     </div>
 </body>
