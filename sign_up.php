@@ -99,9 +99,15 @@ require_once "config.php";
                 if(mysqli_query($conn, $sql)){
                     $_SESSION["Username"] = $username;
                     $_SESSION["Name"] = $name;
-                    $_SESSION["DOB"] = $date;
                     $_SESSION["Login"] = 1;
-                    header('location: profile.php');
+                    $sql1 = "SELECT * FROM divyansh_user_data WHERE username='$username'";
+                    $result1 = mysqli_query($conn, $sql1);
+                    $num = mysqli_num_rows($result1);
+                    if($num == 1){
+                        header("location:main.php");
+                    }else{
+                        header('location: profile.php');
+                    }
                 }
             }
         } 
@@ -163,6 +169,7 @@ require_once "config.php";
             padding-top: 20px;
         }
         a{
+            padding: 20px;
             font-size: 20px;
             color:grey;
             

@@ -153,6 +153,7 @@ require_once "config.php";
             padding-top: 20px;
         }
         a{
+            padding: 20px;
             font-size: 20px;
             color:grey;
             

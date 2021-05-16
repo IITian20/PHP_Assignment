@@ -1,7 +1,6 @@
 <?php
 session_start();
 require_once "config.php";
-
     $username = $_POST["username"];
     $password = $_POST["password"];
     $remember = $_POST["remember"];
@@ -36,7 +35,15 @@ require_once "config.php";
                     }
                 }
                 $_SESSION["Login"] = 1;
-                header('location: profile.php');
+                $sql1 = "SELECT * FROM divyansh_user_data WHERE username='$username'";
+                $result1 = mysqli_query($conn, $sql1);
+                $num = mysqli_num_rows($result1);
+                if($num == 1){
+                    header("location:main.php");
+                }else{
+                    header('location: profile.php');
+                }
+                
             }
             else{
                 $message = "Invalid Credentials!! Try Again or Create an account if you don't have.";
@@ -76,6 +83,7 @@ require_once "config.php";
             font-size: 20px;
         }
         a{
+            padding: 20px;
             font-size: 20px;
             color:grey;
             
