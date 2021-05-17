@@ -19,7 +19,6 @@ require_once "config.php";
         $dob = $row2["dob"];
     }
     $name = $_SESSION["Name"];
-    
     $email = $phone = "";
     $email_err =  $phone_err1 = $phone_err2 = $phone_err3 = $phone_err4 = $gender_err = $image_err =  "";
     $value = "none";
@@ -40,6 +39,7 @@ require_once "config.php";
     if($_SERVER["REQUEST_METHOD"]== "POST"){   
        
         $file = $_FILES['image'];
+        $fileName = $_FILES['image']['name'];
         if($num1==0){
             $fileName = $_FILES['image']['name'];
             $fileTemp = $_FILES['image']['tmp_name'];
@@ -47,18 +47,31 @@ require_once "config.php";
             $fileSize = $_FILES['image']['size'];
             $fileExt = explode('.',$fileName);
             $fileExtF = strtolower(end($fileExt));
-        }else{
-            $fileName = $image;
-            $fileTemp = $image;
-            $fileError = 0;
-            $fileSize = 2;
-            $fileExt = explode('.',$fileName);
-            $fileExtF = strtolower(end($fileExt));
+            echo "imageN";
+        }
+        else{
+            if(empty($fileName)){
+                $fileName = $image;
+                $fileTemp = $image;
+                $fileError = 0;
+                $fileSize = 2;
+                $fileExt = explode('.',$fileName);
+                $fileExtF = strtolower(end($fileExt));
+            }
+            else{
+                $fileName = $_FILES['image']['name'];
+                $fileTemp = $_FILES['image']['tmp_name'];
+                $fileError = $_FILES['image']['error'];
+                $fileSize = $_FILES['image']['size'];
+                $fileExt = explode('.',$fileName);
+                $fileExtF = strtolower(end($fileExt));
+            }
+            
         }
         $allowed = array('jpg', 'jpeg', 'png');
         if(in_array($fileExtF, $allowed)){
             if($fileError == 0){
-                if($fileSize < 1000000){
+                if($fileSize < 20000000){
                     $fileNewName = $username.".".$fileExtF;
                     $destination = "uploads/".$fileNewName;
                     move_uploaded_file($fileTemp, $destination);
@@ -78,20 +91,24 @@ require_once "config.php";
         $email_check = "/^[a-zA-Z0-9]+[a-zA-Z0-9\W_]*[a-zA-Z0-9]+@[a-zA-Z]+\.[A-z]+[\.A-z]*[a-zA-Z]+$/";
         if(preg_match($email_check, $_POST["email"]) == 0){
             $email_err = "Enter a valid email!";
+            echo "emailC";
         }
         else{
             $email = $_POST["email"];
             $email_err = "";
+            echo "emailS";
         }
-        if(preg_match($email_check, $_POST["email"]) == 0){
+        if(preg_match($phone_check, $_POST["phone"]) == 0){
             $phone_err1 ="Enter valid mobile number, eg:";
             $phone_err2 = "+918989239231, +91-8989239231,";
             $phone_err3 = "918989239231, 08989239231 or";
             $phone_err4 = "8989239231";
+            echo "phoneC";
         }
         else{
             $phone = $_POST["phone"];
             $phone_err1 = "";
+            echo "phoneS";
         }
         if(empty($_POST["gender"])){
             $gender_err = "Select gender.";
@@ -106,19 +123,17 @@ require_once "config.php";
             if(empty($email_err) && empty($phone_err1) && empty($gender_err) && empty($image_err)){
                 $sql = "INSERT INTO divyansh_user_data (username, number, email, gender, profile_image) VALUES ('$username', '$phone', '$email', '$gender', '$destination')";
                 if(mysqli_query($conn, $sql)){
-                    header("location: main.php");
+                   header("location: main.php");
                 }
     
             }
         }else{
-            $gender_err = "";
-            $email_err = "";
-            $phone_err1 = "";
-            $phone_err2 = "";
             $image_err = "";
-            $sql = "UPDATE divyansh_user_data SET number='$phone', email='$email', gender='$gender', profile_image='$image' WHERE username='$username'";
-            if(mysqli_query($conn, $sql)){
-                header("location: main.php");
+            if(empty($email_err) && empty($phone_err1) && empty($gender_err) && empty($image_err)){
+                $sql = "UPDATE divyansh_user_data SET number='$phone', email='$email', gender='$gender', profile_image='$destination' WHERE username='$username'";
+                if(mysqli_query($conn, $sql)){
+                    header("location: main.php");
+                }
             }
         }
         
@@ -243,7 +258,7 @@ require_once "config.php";
 </head>
 <body>
     <?php if($_SESSION["Login"]==0){ header("location: login.php"); } ?>
-    <h1 class="h1"><span class="heading">Profile</span></h1><br><br>
+    <h1 class="h1"><span class="heading">Update Profile</span></h1><br><br>
     <div class="form">
         <form action="" method="POST" enctype="multipart/form-data">
             <div class="sign_up_box">

@@ -131,7 +131,7 @@ require_once "config.php";
         body{
             font-family: 'Lato', sans-serif;
             margin: 0px;
-            padding-bottom: 50px;
+            padding-bottom: 20px;
         }
         p{
             border: 2px solid red;
@@ -141,6 +141,8 @@ require_once "config.php";
             font-weight: 700;
             font-family: 'Verdana, Geneva, Tahoma, sans-serif';
             font-size: 20px;
+            margin: 0px;
+            margin-bottom: 10px;
         }
         #name_err{
             display: <?php if(empty($name_err)){ echo $value; } else { echo $value1;}  ?>;
@@ -149,7 +151,8 @@ require_once "config.php";
             display: <?php if(empty($username_err)){ echo $value; } else { echo $value1;}  ?>;
         }
         .err{
-            display: <?php if(empty($password_err1)){ echo $value; } else { echo "block";}  ?>;
+            display: <?php if(empty($password_err1)){ echo $value; } else { echo $value1;}  ?>;
+            margin-top: 10px;
         }
         #pass_err{
             display: <?php if(empty($password_err1)){ echo $value; } else { echo $value1;}  ?>;
@@ -167,6 +170,7 @@ require_once "config.php";
             font-family: 'Playfair Display';
             margin-top: 0px;
             padding-top: 20px;
+            margin-bottom: 10px;
         }
         a{
             padding: 20px;
@@ -190,14 +194,13 @@ require_once "config.php";
         .form{
             display: flex;
             justify-content: center;
-            padding-left: 30px;
         }
         input{
             font-size: 35px;
         }
         .button{
             padding: 10px;
-            margin-bottom: 30px;
+            margin-bottom:10px;
             font-family: 'Playfair Display';
             background-color: rgb(235,235,235);
             font-size: 30px;
@@ -214,62 +217,61 @@ require_once "config.php";
             align-self:baseline;
         }
         .sign_up_box{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             background-color: rgb(235,235,235);
             border: 2px solid black;
-            padding: 50px;
+            padding: 20px 30px;
         }
     </style>
 </head>
 <body>
-    <h1 class="h1"><span class="heading">Sign Up</span></h1><br><br>
+    <h1 class="h1"><span class="heading">Sign Up for ChatterBox</span></h1><br>
     <div class="form">
         <form action="" method="POST">
             <div class="sign_up_box">
                     <label class="label" for="name">
                         Name:
-                    </label><br><br>
-                    <input  type="text" id="name" name="name" maxlength="30" size="15" placeholder="Name"><br><br>
+                    </label><br>
+                    <input  type="text" id="name" name="name" maxlength="30" size="15" placeholder="Name" value="<?php if(empty($name_err)){echo isset($name) ? $name : '';}else{echo "";}?>"><br>
                     <p id="name_err"><?php if(!empty($name_err)){ echo $name_err; } ?></p>
-                    <br><br>
                     <label class="label" for="username">
                         Username:
-                    </label><br><br>
-                    <input  type="text" id="username" name="username" maxlength="30" size="15" placeholder="Username">
-                    <br><br>
+                    </label><br>
+                    <input  type="text" id="username" name="username" maxlength="30" size="15" placeholder="Username" value="<?php if(empty($username_err)){echo isset($username) ? $username : '';}else{echo "";}?>">
+                    <br>
                     <p id="username_err"><?php if(!empty($username_err)){ echo $username_err; } ?></p>
-                    <br><br>
                     <label class="label" for="date">
                         Date of birth:
-                    </label><br><br>
-                    <input  type="date" id="date" name="date" maxlength="30" size="15" placeholder="dd-mm-yyyy">
-                    <br><br>
+                    </label><br>
+                    <input  type="date" id="date" name="date" maxlength="30" size="15" placeholder="dd-mm-yyyy" value="<?php if(empty($date_err)){echo isset($date) ? $date : '';}else{echo "";}?>">
+                    <br>
                     <p id="date_err"><?php if(!empty($date_err)){ echo $date_err; } ?></p>
-                    <br><br>
                     <label class="label" for="password">
                         Password:
-                    </label><br><br>
+                    </label><br>
                     <input  type="password" id="password" name="password" size="15" value="" placeholder="Password">
-                    <br><br>
+                    <br>
                     <div class="err">
-                    <p id="pass_err"><?php if(!empty($password_err1)){ echo $password_err1; } ?></p><br><br><br>
-                    <p id="pass_err"><?php if(!empty($password_err2)){ echo $password_err2; } ?></p><br><br><br>
-                    <p id="pass_err"><?php if(!empty($password_err3)){ echo $password_err3; } ?></p><br><br><br>
+                    <p id="pass_err"><?php if(!empty($password_err1)){ echo $password_err1; } ?></p><br><br>
+                    <p id="pass_err"><?php if(!empty($password_err2)){ echo $password_err2; } ?></p><br><br>
+                    <p id="pass_err"><?php if(!empty($password_err3)){ echo $password_err3; } ?></p><br><br>
                     <p id="pass_err"><?php if(!empty($password_err4)){ echo $password_err4; } ?></p>
                     </div>
-                    <br><br>
+                    <br>
                     <label class="label" for="cpassword">
                         Confirm Password:
-                    </label><br><br>
+                    </label><br>
                     <input  type="password" id="cpassword" name="cpassword" size="15" value="" placeholder="Confirm Password">
-                    <br><br>
+                    <br>
                     <p id="c_pass_err"><?php if(!empty($confirm_password_err)){ echo $confirm_password_err; } ?></p>
             </div>
-            
-            <br><br>
+            <br>
             <div class="button1">
                 <input name="submit" type="submit" value="Sign Up" class="button">
             </div>
-            <br><div class="button1">
+            <div class="button1">
                 <a href="login.php">Already have an account. Sign In here.</a>
             </div>
         </form>

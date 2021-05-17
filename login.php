@@ -72,6 +72,7 @@ require_once "config.php";
         body{
             font-family: 'Lato', sans-serif;
             margin: 0px;
+            padding-bottom: 20px;
         }
         p{
             border: 2px solid red;
@@ -81,12 +82,12 @@ require_once "config.php";
             font-weight: 700;
             font-family: 'Verdana, Geneva, Tahoma, sans-serif';
             font-size: 20px;
+            margin-top: 0px;
         }
         a{
-            padding: 20px;
+            padding: 10px;
             font-size: 20px;
             color:grey;
-            
         }
         a:hover{
             color: rgb(90, 112, 134);
@@ -100,6 +101,7 @@ require_once "config.php";
             font-family: 'Playfair Display';
             margin-top: 0px;
             padding-top: 20px;
+            margin-bottom: 10px;
         }
         .heading{
             border-bottom: 2px solid #032957;
@@ -117,14 +119,13 @@ require_once "config.php";
         .form{
             display: flex;
             justify-content: center;
-            padding-left: 30px;
         }
         input{
             font-size: 35px;
         }
         .button{
             padding: 10px;
-            margin-bottom: 30px;
+            margin-bottom:10px;
             font-family: 'Playfair Display';
             background-color: rgb(235,235,235);
             font-size: 30px;
@@ -146,45 +147,53 @@ require_once "config.php";
             justify-content: center;
             background-color: rgb(235,235,235);
             border: 2px solid black;
-            padding: 50px;
+            padding: 20px 30px;
         }
         .extra{
             display: flex;
-            justify-content: space-evenly;
+            justify-content: left;
+        }
+        .extra1{
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: right;
         }
     </style>
 </head>
 <body>
-    <h1 class="h1"><span class="heading">Login</span></h1><br><br>
+    <h1 class="h1"><span class="heading">Login to ChatterBox</span></h1><br>
     <div class="form">
         <form action="" method="POST">
             <div class="login_box">
                 <label class="label" for="username">
                     Username:
-                </label><br><br>
+                </label><br>
                 <input  type="text" id="username" name="username" maxlength="30" size="15" placeholder="Username" value="<?php if(isset($_COOKIE["Username"])){ echo $_COOKIE["Username"];} ?>">
-                <br><br>
-                <br><br>
-                <label class="label" for="password">
-                    Password:
-                </label><br><br>
-                <input  type="password" id="password" name="password" size="15" value="" placeholder="Password">
-                <br><br><br>
+                <br>
                 <div class="extra">
                     <div>
-                        <input type="checkbox" id="remember" name="remember">
+                        <input type="checkbox" id="remember" name="remember" checked>
                         <label class="label label2" for="remember">
-                            Remember Username
+                            &nbsp;&nbsp;&nbsp;Remember Username
                         </label>
                     </div>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="forget_pass.php">Forgot Password?</a>
+                </div>
+                <br>
+                <label class="label" for="password">
+                    Password:
+                </label><br>
+                <input  type="password" id="password" name="password" size="15" value="" placeholder="Password">
+                <br>
+                <div class="extra1">
+                    <a href="forget_pass.php">Forgot Password?</a>
                 </div>
             </div>
-            <br><br>
+            <br>
+    </div>
+ 
             <div class="button1"> 
                 <p class = "err"><?php if(!empty($message)){ echo "$message";}?></p>
             </div>
-            <br>
             <div class="button1">
                 <input name="submit" type="submit" value="Log In" class="button">
             </div>
@@ -192,7 +201,7 @@ require_once "config.php";
                 <a href="sign_up.php">Don't have an account? Sign Up here.</a>
             </div>
         </form>
-    </div>
+
 </body>
 </html>
 
