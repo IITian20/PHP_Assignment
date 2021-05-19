@@ -5,7 +5,9 @@ require_once "config.php";
     $username_err = $name_err = $password_err1 = $password_err2 = $password_err3 = $password_err4 = $confirm_password_err = $date_err = "";
     $value = "none";
     $value1 = "inline";
-
+    if(isset($_COOKIE["Id"])){
+        setcookie("Id", "-1", time()-3600);
+    }
 
     unset($_SESSION["Username"]);
     unset($_SESSION["Name"]);
@@ -106,6 +108,7 @@ require_once "config.php";
                     if($num == 1){
                         header("location:main.php");
                     }else{
+                        $_SESSION["Profile"] = 0;
                         header('location: profile.php');
                     }
                 }

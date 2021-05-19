@@ -10,6 +10,9 @@ require_once "config.php";
     $_SESSION["Login"] = 0;
     unset($_SESSION["Username"]);
     unset($_SESSION["Name"]);
+    if(isset($_COOKIE["Id"])){
+        setcookie("Id", "-1", time()-3600);
+    }
 
     if($_SERVER["REQUEST_METHOD"]=="POST"){
         $sql = "SELECT * FROM divyansh_user WHERE username='$username'";
@@ -41,6 +44,7 @@ require_once "config.php";
                 if($num == 1){
                     header("location:main.php");
                 }else{
+                    $_SESSION["Profile"] = 0;
                     header('location: profile.php');
                 }
                 

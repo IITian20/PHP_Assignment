@@ -47,7 +47,6 @@ require_once "config.php";
             $fileSize = $_FILES['image']['size'];
             $fileExt = explode('.',$fileName);
             $fileExtF = strtolower(end($fileExt));
-            echo "imageN";
         }
         else{
             if(empty($fileName)){
@@ -91,24 +90,20 @@ require_once "config.php";
         $email_check = "/^[a-zA-Z0-9]+[a-zA-Z0-9\W_]*[a-zA-Z0-9]+@[a-zA-Z]+\.[A-z]+[\.A-z]*[a-zA-Z]+$/";
         if(preg_match($email_check, $_POST["email"]) == 0){
             $email_err = "Enter a valid email!";
-            echo "emailC";
         }
         else{
             $email = $_POST["email"];
             $email_err = "";
-            echo "emailS";
         }
         if(preg_match($phone_check, $_POST["phone"]) == 0){
             $phone_err1 ="Enter valid mobile number, eg:";
             $phone_err2 = "+918989239231, +91-8989239231,";
             $phone_err3 = "918989239231, 08989239231 or";
             $phone_err4 = "8989239231";
-            echo "phoneC";
         }
         else{
             $phone = $_POST["phone"];
             $phone_err1 = "";
-            echo "phoneS";
         }
         if(empty($_POST["gender"])){
             $gender_err = "Select gender.";
@@ -123,15 +118,16 @@ require_once "config.php";
             if(empty($email_err) && empty($phone_err1) && empty($gender_err) && empty($image_err)){
                 $sql = "INSERT INTO divyansh_user_data (username, number, email, gender, profile_image) VALUES ('$username', '$phone', '$email', '$gender', '$destination')";
                 if(mysqli_query($conn, $sql)){
+                    $_SESSION["Profile"] = 1;
                    header("location: main.php");
                 }
-    
             }
         }else{
             $image_err = "";
             if(empty($email_err) && empty($phone_err1) && empty($gender_err) && empty($image_err)){
                 $sql = "UPDATE divyansh_user_data SET number='$phone', email='$email', gender='$gender', profile_image='$destination' WHERE username='$username'";
                 if(mysqli_query($conn, $sql)){
+                    $_SESSION["Profile"] = 1;
                     header("location: main.php");
                 }
             }
@@ -195,7 +191,7 @@ require_once "config.php";
         a{
             font-size: 20px;
             color:grey;
-
+            align-self: center;
         }
         a:hover{
             color: rgb(90, 112, 134);
@@ -234,7 +230,6 @@ require_once "config.php";
         .button1{
             display: flex;
             justify-content: center;
-            align-self:baseline;
         }
         .sign_up_box{
             display: flex;
@@ -281,7 +276,7 @@ require_once "config.php";
                     <label class="label" for="phone">
                         Mobile Number:
                     </label><br><br>
-                    <input  type="text" id="phone" name="phone" size="15" placeholder="Mobile Number" value="<?php if($num1==1){ echo $phone;} ?>">
+                    <input  type="text" id="phone" name="phone" size="15" placeholder="Mobile Number" value="<?php if(empty($phone_err1)){ echo $phone;} ?>">
                     <br><br>
                     <div class="err">
                     <p id="phone_err"><?php if(!empty($phone_err1)){ echo $phone_err1; } ?></p><br><br><br>
@@ -293,7 +288,7 @@ require_once "config.php";
                     <label class="label" for="email">
                         Email:
                     </label><br><br>
-                    <input  type="test" id="email" name="email" size="15" placeholder="Email" value="<?php if($num1==1){ echo $email;} ?>">
+                    <input  type="test" id="email" name="email" size="15" placeholder="Email" value="<?php if(empty($email_err)){ echo $email;} ?>">
                     <br><br>
                     <p id="email_err"><?php if(!empty($email_err)){ echo $email_err; } ?></p>
                     <br><br>
@@ -301,11 +296,11 @@ require_once "config.php";
                         Gender:
                     </label><br>
                     <div>
-                        <input class="radio" type="radio" id="male" name="gender"  value="male" <?php if($num1==1){ if($gender == "male"){ echo "checked";}} ?>>
+                        <input class="radio" type="radio" id="male" name="gender"  value="male" <?php if(empty($gender_err)){ if($gender == "male"){ echo "checked";}} ?>>
                         <label for="male" class="label label2">
                             Male
                         </label><br>
-                        <input class="radio" type="radio" id="female" name="gender" value="female" <?php if($num1==1){ if($gender == "female"){ echo "checked";}} ?>>
+                        <input class="radio" type="radio" id="female" name="gender" value="female" <?php if(empty($gender_err)){ if($gender == "female"){ echo "checked";}} ?>>
                         <label for="female" class="label label2">
                             Female
                         </label>
@@ -325,7 +320,10 @@ require_once "config.php";
             <br><br>
             <div class="button1">
                 <input name="submit" type="submit" value="Update Profile" class="button" onclick="my()">
+                
             </div>
+            <br>
+            <a href="<?php if($num1==1){echo 'main.php';}else{echo 'login.php';} ?>">Go Back</a>
         </form>
     </div>
 </body>
