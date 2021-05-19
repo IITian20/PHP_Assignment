@@ -47,10 +47,11 @@ $result = mysqli_query($conn, $sql);
             padding: 15px;
         }   
         #datemsg{
-            background-color:#929292;
+            background-color:#fffbc9;
             padding: 10px;
             border-radius: 10px;
-            color: white;
+            color: black;
+            font-weight:600;
             border: solid 2px black;
         }
     </style>
@@ -63,7 +64,7 @@ if($count==0){ ?>
 </div>
 <?php } ?>
 <div id="msgBox" style="flex-direction: <?php if($row['fromUser']==$fromUser){ echo 'row-reverse';}else{ echo 'row';} ?>;">
-    <div id="msgSend">
+    <div id="msgSend" style="background-color: <?php if($row['fromUser']==$fromUser){ echo '#e4ffe6';}else{ echo '#b6f3b9';} ?>">
         <span id="msg"><?php echo $row['message']; ?></span>
         <span id="msgDate" style="float:right;"><?php echo $row['time(date)']; ?></span>
     </div>
@@ -75,4 +76,3 @@ if($count==0){ ?>
         
 </body>
 </html>
-

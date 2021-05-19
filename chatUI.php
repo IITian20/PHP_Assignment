@@ -19,7 +19,7 @@ $result = mysqli_query($conn, $sql);
             justify-content: flex-start;
             align-items: center;
             max-height: 80px;
-            background-color: #3fffd5;
+            background-color: #3bb844;
             border-radius: 20px;
         }
         #Chatprofile{
@@ -33,9 +33,19 @@ $result = mysqli_query($conn, $sql);
         }
         #Chatname{
             font-size: 40px;
+            color: white;
         }
         .elements{
             display: <?php if(isset($_COOKIE["Id"])){echo "flex";}else{ echo "none";} ?>;
+        }
+        #message{
+            display: <?php if(!isset($_COOKIE["Id"])){echo "none";}else{echo "block";} ?>;
+        }
+        #head{
+            display: <?php if(!isset($_COOKIE["Id"])){echo "none";}else{echo "block";} ?>;
+        }
+        #initialMsg{
+            display: <?php if(isset($_COOKIE["Id"])){echo "none";}else{echo "block";} ?>;
         }
     </style>
 </head>

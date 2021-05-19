@@ -101,7 +101,7 @@ if($_SESSION["Login"]==0){ header("location: login.php"); } if($_SESSION["Profil
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Balsamiq+Sans&family=Fira+Sans:ital,wght@1,300&family=Shadows+Into+Light&display=swap');
-
+        @import url('https://fonts.googleapis.com/css2?family=Goblin+One&display=swap');
         body{
             background-color: #222;
             margin: 0px;
@@ -160,7 +160,7 @@ if($_SESSION["Login"]==0){ header("location: login.php"); } if($_SESSION["Profil
             flex: 1.25;
             display: flex;
             flex-direction: column;
-            background-color: #d6d6d6;
+            background-color: #ffdada;
             transition: all 1s ease;
         }
         #header{
@@ -280,13 +280,15 @@ if($_SESSION["Login"]==0){ header("location: login.php"); } if($_SESSION["Profil
             max-height: 85px;
             padding: 5px;
             overflow: hidden;
+            display: <?php if(!isset($_COOKIE["Id"])){echo "none";}else{echo "block";} ?>;
         }
         #message{
+            display: <?php if(!isset($_COOKIE["Id"])){echo "none";}else{echo "block";} ?>;
             height: 580px;
             max-height: 580px;
             overflow: hidden;
             overflow-y :scroll;
-            background-color: #d6d6d6;
+            background-color: #ffdada;
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
@@ -303,10 +305,15 @@ if($_SESSION["Login"]==0){ header("location: login.php"); } if($_SESSION["Profil
             margin: 5px;
             padding: 10px;
         }
-        #idMsg{
-            width:100%;
-            height: 100%;
-            background-color: red;
+        #initialMsg{
+            width: 100%;
+            display: <?php if(isset($_COOKIE["Id"])){echo "none";}else{echo "block";} ?>;
+            text-align:center;
+            position: relative;
+            top: 35%;
+            font-family: 'Goblin One', cursive;
+            font-size: 50px;
+            opacity: 50%
         }
     </style>
 </head>
@@ -347,6 +354,7 @@ if($_SESSION["Login"]==0){ header("location: login.php"); } if($_SESSION["Profil
 
                             </div>
                         </div>
+                        <p id="initialMsg">Select a user to start Chatting..</p>
                         <div class="elements" id='def'>
                             <form id="messageForm" method="POST">
                                 <input type="submit" id="messageSend" value="Send">
