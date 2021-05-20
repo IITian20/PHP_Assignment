@@ -2,9 +2,13 @@
 session_start();
 require_once "config.php";
 $id = $_COOKIE["Id"];
-$sql = "SELECT d.id, d.username, d.name, d.dob, db.number, db.email, db.gender, db.profile_image FROM divyansh_user as d JOIN divyansh_user_data as db ON d.username=db.username WHERE d.id='$id'";
-$result = mysqli_query($conn, $sql);
-
+$sql = "SELECT d.id, d.username, d.name, d.dob, db.number, db.email, db.gender, db.profile_image FROM divyansh_user as d JOIN divyansh_user_data as db ON d.username=db.username WHERE d.id=?";
+$stmt = mysqli_stmt_init($conn);
+if(mysqli_stmt_prepare($stmt, $sql)){
+    mysqli_stmt_bind_param($stmt, 'i', $id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+}
 ?>
 
 

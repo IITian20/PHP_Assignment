@@ -6,6 +6,21 @@ require_once "config.php";
     $value = "none";
     $value1 = "inline";
     $_SESSION["Login"] = 0;
+    if(isset($_COOKIE["Name1"])){
+        setcookie("Name1", "", time()-3600);
+    }
+    if(isset($_COOKIE["Username1"])){
+        setcookie("Username1", "", time()-3600);
+    }
+    if(isset($_COOKIE["Date1"])){
+        setcookie("Date1", "", time()-3600);
+    }
+    if(isset($_COOKIE["pass1"])){
+        setcookie("pass1", "", time()-3600);
+    }
+    if(isset($_COOKIE["cpass1"])){
+        setcookie("cpass1", "", time()-3600);
+    }
     // Performing all checks
     if($_SERVER["REQUEST_METHOD"]== "POST"){
         $username_check = "/^[A-z._0-9]+$/";
@@ -27,23 +42,28 @@ require_once "config.php";
         }
         // storing in database
         if(empty($username_err) && empty($date_err)){
-            $sql = "SELECT * FROM divyansh_user WHERE username='$username'";
-            $result = mysqli_query($conn, $sql);
-            $num = mysqli_num_rows($result);
-            if($num == 1){
-                $row = mysqli_fetch_assoc($result);
-                if($date == $row["dob"]){
-                    $_SESSION["FUsername"] = $username;
-                    header("location: forget_pass_2.php");
+            $sql = "SELECT * FROM divyansh_user WHERE username=?";
+            $stmt = mysqli_stmt_init($conn);
+            if(mysqli_stmt_prepare($stmt, $sql)){
+                mysqli_stmt_bind_param($stmt, 's', $username);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+                $num = mysqli_num_rows($result);
+                if($num == 1){
+                    $row = mysqli_fetch_assoc($result);
+                    if($date == $row["dob"]){
+                        $_SESSION["FUsername"] = $username;
+                        header("location: forget_pass_2.php");
+                    }
+                    else{
+                        $date_err = "Incorrect date of birth!";
+                    }
+                    
                 }
                 else{
-                    $date_err = "Incorrect date of birth!";
+                    $username_err = "Username does not exits!!";
+                    
                 }
-                
-            }
-            else{
-                $username_err = "Username does not exits!!";
-                
             }
         }
     }
@@ -157,7 +177,7 @@ require_once "config.php";
 <body>
     <h1 class="h1"><span class="heading">Forget Password</span></h1><br>
     <div class="form">
-        <form action="" method="POST">
+        <form action="" method="POST" autocomplete="off">
             <div class="login_box">
                     <label class="label" for="username">
                         Username:

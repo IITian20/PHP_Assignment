@@ -13,52 +13,71 @@ require_once "config.php";
     if(isset($_COOKIE["Id"])){
         setcookie("Id", "-1", time()-3600);
     }
+    if(isset($_COOKIE["Name1"])){
+        setcookie("Name1", "", time()-3600);
+    }
+    if(isset($_COOKIE["Username1"])){
+        setcookie("Username1", "", time()-3600);
+    }
+    if(isset($_COOKIE["Date1"])){
+        setcookie("Date1", "", time()-3600);
+    }
+    if(isset($_COOKIE["pass1"])){
+        setcookie("pass1", "", time()-3600);
+    }
+    if(isset($_COOKIE["cpass1"])){
+        setcookie("cpass1", "", time()-3600);
+    }
 
     if($_SERVER["REQUEST_METHOD"]=="POST"){
-        $sql = "SELECT * FROM divyansh_user WHERE username='$username'";
-        $result = mysqli_query($conn, $sql);
-        $num = mysqli_num_rows($result);
-        $row = mysqli_fetch_assoc($result);
-
-        $password_in_db = $row["password"];
-        
-        
-        if($num == 1){
-            if(password_verify($password, $password_in_db)){
-                $_SESSION["Username"] = $row["username"];
-                $_SESSION["Name"] = $row["name"];
-                if($remember == "on"){
-                    setcookie("Username",$row["username"]);
-                    setcookie("Password",$row["password"]);
-                }
-                else{
-                    if(isset($_COOKIE["Username"])){
-                        setcookie("Username","", time() - 3600);
-                        setcookie("Password","", time() - 3600);
+        $sql = "SELECT * FROM divyansh_user WHERE username=?";
+        $stmt = mysqli_stmt_init($conn);
+        if(mysqli_stmt_prepare($stmt, $sql)){
+            mysqli_stmt_bind_param($stmt, 's', $username);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
+            $num = mysqli_num_rows($result);
+            $row = mysqli_fetch_assoc($result);
+            $password_in_db = $row["password"];
+            if($num == 1){
+                if(password_verify($password, $password_in_db)){
+                    $_SESSION["Username"] = $row["username"];
+                    $_SESSION["Name"] = $row["name"];
+                    if($remember == "on"){
+                        setcookie("Username",$row["username"]);
+                        setcookie("Password",$row["password"]);
+                    }
+                    else{
+                        if(isset($_COOKIE["Username"])){
+                            setcookie("Username","", time() - 3600);
+                            setcookie("Password","", time() - 3600);
+                        }
+                    }
+                    $_SESSION["Login"] = 1;
+                    $sql1 = "SELECT * FROM divyansh_user_data WHERE username=?";
+                    $stmt1 = mysqli_stmt_init($conn);
+                    if(mysqli_stmt_prepare($stmt1, $sql1)){
+                        mysqli_stmt_bind_param($stmt1, 's', $username);
+                        mysqli_stmt_execute($stmt1);
+                        $result1 = mysqli_stmt_get_result($stmt1);
+                        $num1 = mysqli_num_rows($result1);
+                        if($num1 == 1){
+                            header("location:main.php");
+                        }else{
+                            $_SESSION["Profile"] = 0;
+                            header('location: profile.php');
+                        }
                     }
                 }
-                $_SESSION["Login"] = 1;
-                $sql1 = "SELECT * FROM divyansh_user_data WHERE username='$username'";
-                $result1 = mysqli_query($conn, $sql1);
-                $num = mysqli_num_rows($result1);
-                if($num == 1){
-                    header("location:main.php");
-                }else{
-                    $_SESSION["Profile"] = 0;
-                    header('location: profile.php');
+                else{
+                    $message = "Invalid Credentials!! Try Again or Create an account if you don't have.";
                 }
-                
             }
             else{
                 $message = "Invalid Credentials!! Try Again or Create an account if you don't have.";
             }
         }
-        else{
-            $message = "Invalid Credentials!! Try Again or Create an account if you don't have.";
-        }
-        
     }
-
     mysqli_close($conn);
 ?>
 <!DOCTYPE html>
@@ -167,7 +186,7 @@ require_once "config.php";
 <body>
     <h1 class="h1"><span class="heading">Login to ChatterBox</span></h1><br>
     <div class="form">
-        <form action="" method="POST">
+        <form action="" method="POST" autocomplete="off">
             <div class="login_box">
                 <label class="label" for="username">
                     Username:

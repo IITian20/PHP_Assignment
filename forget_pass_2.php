@@ -50,26 +50,34 @@ require_once "config.php";
         
         // storing in database
         if(empty($password_err1) && empty($confirm_password_err)){
-            $sql = "SELECT * FROM divyansh_user WHERE username='$username'";
-            $result = mysqli_query($conn, $sql);
-            $num = mysqli_num_rows($result);
-            if($num == 1){
-                $row = mysqli_fetch_assoc($result);
-                if(password_verify($password, $row["password"])){
-                    $password_err1 = "Use a different password!";
-                    $password_err2 = "";
-                }
-                else{
-                    $hash = password_hash($password, PASSWORD_DEFAULT);
-                    $sql = "UPDATE divyansh_user SET password='$hash' WHERE username='$username'";
-                    if(mysqli_query($conn, $sql)){
-                        unset($_SESSION["FUsername"]);
-                        header('location: login.php');
+            $sql = "SELECT * FROM divyansh_user WHERE username=?";
+            $stmt = mysqli_stmt_init($conn);
+            if(mysqli_stmt_prepare($stmt, $sql)){
+                mysqli_stmt_bind_param($stmt, 's', $username);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+                $num = mysqli_num_rows($result);
+                if($num == 1){
+                    $row = mysqli_fetch_assoc($result);
+                    if(password_verify($password, $row["password"])){
+                        $password_err1 = "Use a different password!";
+                        $password_err2 = "";
+                    }
+                    else{
+                        $hash = password_hash($password, PASSWORD_DEFAULT);
+                        $sql1 = "UPDATE divyansh_user SET password=? WHERE username=?";
+                        $stmt1 = mysqli_stmt_init($conn);
+                        if(mysqli_stmt_prepare($stmt1, $sql1)){
+                            mysqli_stmt_bind_param($stmt1, 'ss', $hash, $username);
+                            mysqli_stmt_execute($stmt1);
+                            unset($_SESSION["FUsername"]);
+                            header('location: login.php');
+                        }
                     }
                 }
-            }
-            else{
-                header("location: forget_pass.php");
+                else{
+                    header("location: forget_pass.php");
+                }
             }
         }
     }
@@ -192,7 +200,7 @@ require_once "config.php";
 <body>
     <h1 class="h1"><span class="heading">Forget Password</span></h1><br>
     <div class="form">
-        <form action="" method="POST">
+        <form action="" method="POST" autocomplete="off">
             <div class="login_box1">
                     <label class="label" for="password">
                         New Password:

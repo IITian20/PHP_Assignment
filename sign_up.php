@@ -6,106 +6,58 @@ require_once "config.php";
     $value = "none";
     $value1 = "inline";
     if(isset($_COOKIE["Id"])){
-        setcookie("Id", "-1", time()-3600);
+        setcookie("Id", "", time()-3600);
     }
-
     unset($_SESSION["Username"]);
     unset($_SESSION["Name"]);
 
+
     // Performing all checks
     if($_SERVER["REQUEST_METHOD"]== "POST"){
-        $name_check = "/^[A-Za-z]+[A-Za-z \.'\,\-]*[A-Za-z\.]+$/";
-        $username_check = "/^[A-z._0-9]+$/";
         $smallLetter = "/[a-z]/";
         $capitalLetter = "/[A-Z]/";
         $numberPassword = "/[0-9]/";
         $specialCharacter = "/[\W_]/";
-
-        $date = $_POST["date"];
-
-        $x = 0;
-        if(preg_match($name_check, $_POST["name"]) == 0){
-            $name_err = "Enter a valid name! Only letters and whitespace are allowed.";
-        }
-        else{
-            if(strlen($_POST["name"]) < 3){
-                $name_err = "Enter a valid name! Name should have minimum 3 chracters.";
-            }
-            else{
-                $name = $_POST["name"];
-                $name_err = "";
-            }
-        }
-        if(preg_match($username_check, $_POST["username"]) == 0){
-            $username_err = "Enter a valid username! Only letters, numbers, . , _ , are allowed.";
-        }
-        else{
-            if(strlen($_POST["username"]) < 3){
-                $username_err = "Enter a valid username! Usernnme should have minimum 3 chracters.";
-            }
-            else{
-                $username = $_POST["username"];
-                $username_err = "";
-            }
-        }
-        if(preg_match($smallLetter, $_POST["password"])==1){
-            $x = $x + 1;
-        }
-        if(preg_match($capitalLetter, $_POST["password"])==1){
-            $x = $x + 1;
-        }
-        if(preg_match($numberPassword, $_POST["password"])==1){
-            $x = $x + 1;
-        }
-        if(preg_match($specialCharacter, $_POST["password"])==1){
-            $x = $x + 1;
-        }
-        if(strlen($_POST["password"])>=6){
-            $x = $x + 1;
-        }
-        if($x < 5){
-            $password_err1 ="Enter password of:";
-            $password_err2 = "atleat 6 characters long,";
-            $password_err3 = "having both lowercase and uppercase";
-            $password_err4 = "having atleast 1 number and 1 special characters.";
-        }
-        else{
-            $password = $_POST["password"];
-            $password_err1 = "";
-        }
-        if($_POST["cpassword"] != $password){
-            $confirm_password_err = "Passsword do not match!";
-        }
-        else{
-            $confirm_password = $_POST["cpassword"];
-            $confirm_password_err = "";
-        }
-        if(empty($date)){
-            $date_err = "Date cannot be empty!";
-        }
-        
-        
+        $username = $name = $password = $cpassword = $date = "";
+        $name = $_COOKIE["Name1"];
+        $date = $_COOKIE["Date1"];
+        $username = $_COOKIE["Username1"];
+        $password = $_COOKIE["pass1"];
+        $cpassword = $_COOKIE["cpass1"];
         // storing in database
-        if(empty($name_err) && empty($username_err) && empty($password_err1) && empty($confirm_password_err) && empty($date_err)){
-            $sql = "SELECT * FROM divyansh_user WHERE username='$username'";
-
-            $result = mysqli_query($conn, $sql);
-
-            $num = mysqli_num_rows($result);
-            if($num==1){
-                $username_err = "Username already exits!!";
-            }
-            else{
-                $hash = password_hash($password, PASSWORD_DEFAULT);
-                $sql = "INSERT INTO divyansh_user (name, username, password, dob) VALUES ('$name', '$username', '$hash', '$date')";
-                if(mysqli_query($conn, $sql)){
-                    $_SESSION["Username"] = $username;
-                    $_SESSION["Name"] = $name;
-                    $_SESSION["Login"] = 1;
-                    $sql1 = "SELECT * FROM divyansh_user_data WHERE username='$username'";
-                    $result1 = mysqli_query($conn, $sql1);
+        if(!empty($name) && !empty($username) && !empty($password) && !empty($cpassword) && !empty($date)){
+            $sql = "INSERT INTO divyansh_user (name, username, password, dob) VALUES (?, ?, ?, ?)";
+            $stmt = mysqli_stmt_init($conn);
+            if(mysqli_stmt_prepare($stmt,$sql)){
+                mysqli_stmt_bind_param($stmt, "ssss", $name, $username, $password, $date);
+                mysqli_stmt_execute($stmt);
+                $_SESSION["Username"] = $username;
+                $_SESSION["Name"] = $name;
+                $_SESSION["Login"] = 1;
+                if(isset($_COOKIE["Name1"])){
+                    setcookie("Name1", "", time()-3600);
+                }
+                if(isset($_COOKIE["Username1"])){
+                    setcookie("Username1", "", time()-3600);
+                }
+                if(isset($_COOKIE["Date1"])){
+                    setcookie("Date1", "", time()-3600);
+                }
+                if(isset($_COOKIE["pass1"])){
+                    setcookie("pass1", "", time()-3600);
+                }
+                if(isset($_COOKIE["cpass1"])){
+                    setcookie("cpass1", "", time()-3600);
+                }
+                $sql1 = "SELECT * FROM divyansh_user_data WHERE username=?";
+                $stmt1 = mysqli_stmt_init($conn);
+                if(mysqli_stmt_prepare($stmt1, $sql1)){
+                    mysqli_stmt_bind_param($stmt1, 's', $username);
+                    mysqli_stmt_execute($stmt1);
+                    $result1 = mysqli_stmt_get_result($stmt1);
                     $num = mysqli_num_rows($result1);
                     if($num == 1){
+                        $_SESSION["Profile"] = 1;
                         header("location:main.php");
                     }else{
                         $_SESSION["Profile"] = 0;
@@ -113,9 +65,8 @@ require_once "config.php";
                     }
                 }
             }
-        } 
+        }
     }
-
     mysqli_close($conn);
 ?>
 
@@ -126,7 +77,114 @@ require_once "config.php";
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
-    
+    <script>
+        function name_request(){
+            var x ="";
+            var name = document.getElementById("name").value;
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                   x = this.responseText;
+                    if(x == ""){
+                        document.getElementById("name_err").style.display = "none";
+                        document.cookie = "Name1 = " + name;
+                    }
+                    else{
+                        document.getElementById("name_err").style.display = "inline";
+                        document.getElementById("name_err").innerHTML = x;
+                        document.cookie = "Name1 =; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+                    }
+                }
+            };
+            xmlhttp.open("POST", "nameCheck.php", true);
+            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.send("name="+name);
+        }
+        function username_request(){
+            var y ="";
+            var username = document.getElementById("username").value;
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                   y = this.responseText;
+                    if(y == ""){
+                        document.getElementById("username_err").style.display = "none";
+                        document.cookie = "Username1 = " + username;
+                    }
+                    else{
+                        document.getElementById("username_err").style.display = "inline";
+                        document.getElementById("username_err").innerHTML = y;
+                        document.cookie = "Username1 =; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+                    }
+                }
+            };
+            xmlhttp.open("POST", "usernameCheck.php", true);
+            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.send("username="+username);
+        }
+        function date_request(){
+            var z ="";
+            var date = document.getElementById("date").value;
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                   z = this.responseText;
+                    if(z == ""){
+                        document.getElementById("date_err").style.display = "none";
+                        document.cookie = "Date1 = " + date;
+                    }
+                    else{
+                        document.getElementById("date_err").style.display = "inline";
+                        document.getElementById("date_err").innerHTML = z;
+                        document.cookie = "Date1 =; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+                    }
+                }
+            };
+            xmlhttp.open("POST", "dateCheck.php", true);
+            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.send("date="+date);
+        }
+        function pass_request(){
+            var a="";
+            var pass = document.getElementById("password").value;
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                   a = this.responseText;
+                    if(a == ""){
+                        document.getElementById("err").style.display = "none";
+                    }
+                    else{
+                        document.getElementById("err").style.display = "inline";
+                        document.getElementById("err").innerHTML = a;
+                    }
+                }
+            };
+            xmlhttp.open("POST", "passCheck.php", true);
+            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.send("password="+pass);
+        }
+        function cpass_request(){
+            var b ="";
+            var pass = document.getElementById("cpassword").value;
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                   b = this.responseText;
+                    if(b == ""){
+                        document.getElementById("c_pass_err").style.display = "none";
+                    }
+                    else{
+                        document.getElementById("c_pass_err").style.display = "inline";
+                        document.getElementById("c_pass_err").innerHTML = b;
+                    }
+                }
+            };
+            xmlhttp.open("POST", "cpassCheck.php", true);
+            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.send("cpassword="+pass);
+        }
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&display=swap'); 
         @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&display=swap');
@@ -148,24 +206,24 @@ require_once "config.php";
             margin-bottom: 10px;
         }
         #name_err{
-            display: <?php if(empty($name_err)){ echo $value; } else { echo $value1;}  ?>;
+            display: none;
         }
         #username_err{
-            display: <?php if(empty($username_err)){ echo $value; } else { echo $value1;}  ?>;
+            display: none;
         }
-        .err{
-            display: <?php if(empty($password_err1)){ echo $value; } else { echo $value1;}  ?>;
+        #err{
+            display: none;
             margin-top: 10px;
         }
         #pass_err{
-            display: <?php if(empty($password_err1)){ echo $value; } else { echo $value1;}  ?>;
+            display: inline;
         }
         #c_pass_err{
-            display: <?php if(empty($confirm_password_err)){ echo $value; } else { echo $value1;}  ?>;
+            display: none;
         }
 
         #date_err{
-            display: <?php if(empty($date_err)){ echo $value; } else { echo $value1;}  ?>;
+            display: none;
         }
         .h1{
             text-align: center;
@@ -228,47 +286,44 @@ require_once "config.php";
             padding: 20px 30px;
         }
     </style>
+
 </head>
 <body>
     <h1 class="h1"><span class="heading">Sign Up for ChatterBox</span></h1><br>
     <div class="form">
-        <form action="" method="POST">
+        <form action="" method="POST" autocomplete="off">
             <div class="sign_up_box">
                     <label class="label" for="name">
                         Name:
                     </label><br>
-                    <input  type="text" id="name" name="name" maxlength="30" size="15" placeholder="Name" value="<?php if(empty($name_err)){echo isset($name) ? $name : '';}else{echo "";}?>"><br>
-                    <p id="name_err"><?php if(!empty($name_err)){ echo $name_err; } ?></p>
+                    <input  type="text" id="name" name="name" maxlength="30" size="15" placeholder="Name" value="<?php echo $name ?>" onkeyup="name_request()"><br>
+                    <p id="name_err"></p>
                     <label class="label" for="username">
                         Username:
                     </label><br>
-                    <input  type="text" id="username" name="username" maxlength="30" size="15" placeholder="Username" value="<?php if(empty($username_err)){echo isset($username) ? $username : '';}else{echo "";}?>">
+                    <input  type="text" id="username" name="username" maxlength="30" size="15" placeholder="Username" value="<?php echo $username ?>" onkeyup="username_request()">
                     <br>
-                    <p id="username_err"><?php if(!empty($username_err)){ echo $username_err; } ?></p>
+                    <p id="username_err"></p>
                     <label class="label" for="date">
                         Date of birth:
                     </label><br>
-                    <input  type="date" id="date" name="date" maxlength="30" size="15" placeholder="dd-mm-yyyy" value="<?php if(empty($date_err)){echo isset($date) ? $date : '';}else{echo "";}?>">
+                    <input  type="date" id="date" name="date" maxlength="30" size="15" placeholder="dd-mm-yyyy" value="<?php $date ?>" onkeyup="date_request()">
                     <br>
-                    <p id="date_err"><?php if(!empty($date_err)){ echo $date_err; } ?></p>
+                    <p id="date_err"></p>
                     <label class="label" for="password">
                         Password:
                     </label><br>
-                    <input  type="password" id="password" name="password" size="15" value="" placeholder="Password">
+                    <input  type="password" id="password" name="password" size="15" value="" placeholder="Password" onkeyup="pass_request()">
                     <br>
-                    <div class="err">
-                    <p id="pass_err"><?php if(!empty($password_err1)){ echo $password_err1; } ?></p><br><br>
-                    <p id="pass_err"><?php if(!empty($password_err2)){ echo $password_err2; } ?></p><br><br>
-                    <p id="pass_err"><?php if(!empty($password_err3)){ echo $password_err3; } ?></p><br><br>
-                    <p id="pass_err"><?php if(!empty($password_err4)){ echo $password_err4; } ?></p>
+                    <div id="err">
                     </div>
                     <br>
                     <label class="label" for="cpassword">
                         Confirm Password:
                     </label><br>
-                    <input  type="password" id="cpassword" name="cpassword" size="15" value="" placeholder="Confirm Password">
+                    <input  type="password" id="cpassword" name="cpassword" size="15" value="" placeholder="Confirm Password" onkeyup="cpass_request()">
                     <br>
-                    <p id="c_pass_err"><?php if(!empty($confirm_password_err)){ echo $confirm_password_err; } ?></p>
+                    <p id="c_pass_err"></p>
             </div>
             <br>
             <div class="button1">

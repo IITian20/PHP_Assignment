@@ -5,15 +5,42 @@ if($_SESSION["Login"]==0){ header("location: login.php"); } if($_SESSION["Profil
     $username = $_SESSION["Username"];
     $_SESSION["Fromuser"] = $username;
     $name = $_SESSION["Name"];
-    $sql = "SELECT d.username, d.name, d.dob, db.number, db.email, db.gender, db.profile_image FROM divyansh_user as d JOIN divyansh_user_data as db ON d.username=db.username WHERE d.username='$username'";
-    $result = mysqli_query($conn, $sql);
-    $num = mysqli_num_rows($result);
-    
+    $sql = "SELECT d.username, d.name, d.dob, db.number, db.email, db.gender, db.profile_image FROM divyansh_user as d JOIN divyansh_user_data as db ON d.username=db.username WHERE d.username=?";
+    $stmt = mysqli_stmt_init($conn);
+    if(mysqli_stmt_prepare($stmt, $sql)){
+        mysqli_stmt_bind_param($stmt, 's', $username);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        $num = mysqli_num_rows($result);
+    }
+    else{
+        $num = 0;
+    }
+    if(isset($_COOKIE["Name1"])){
+        setcookie("Name1", "", time()-3600);
+    }
+    if(isset($_COOKIE["Username1"])){
+        setcookie("Username1", "", time()-3600);
+    }
+    if(isset($_COOKIE["Date1"])){
+        setcookie("Date1", "", time()-3600);
+    }
+    if(isset($_COOKIE["pass1"])){
+        setcookie("pass1", "", time()-3600);
+    }
+    if(isset($_COOKIE["cpass1"])){
+        setcookie("cpass1", "", time()-3600);
+    }
     if($num == 1){
         $row = mysqli_fetch_assoc($result);
         $profile_image = $row["profile_image"];
-        $sqlAU="SELECT d.id, d.username, d.name, d.dob, db.number, db.email, db.gender, db.profile_image FROM divyansh_user as d JOIN divyansh_user_data as db ON d.username=db.username WHERE NOT d.username='$username'"; 
-        $resultAU=mysqli_query($conn, $sqlAU);
+        $sqlAU="SELECT d.id, d.username, d.name, d.dob, db.number, db.email, db.gender, db.profile_image FROM divyansh_user as d JOIN divyansh_user_data as db ON d.username=db.username WHERE NOT d.username=?"; 
+        $stmtAU = mysqli_stmt_init($conn);
+        if(mysqli_stmt_prepare($stmtAU, $sqlAU)){
+            mysqli_stmt_bind_param($stmtAU, 's', $username);
+            mysqli_stmt_execute($stmtAU);
+            $resultAU = mysqli_stmt_get_result($stmtAU);
+        }
     }
     if($_SERVER["REQUEST_METHOD"]=="POST"){
         $message_err="";
@@ -33,11 +60,14 @@ if($_SESSION["Login"]==0){ header("location: login.php"); } if($_SESSION["Profil
         if(empty($message_err)){
             $touser = $_SESSION["Touser"];
             $fromuser = $username;
-            $sqlS = "INSERT INTO divyansh_chat (fromUser, toUser, message) VALUES ('$fromuser', '$touser', '$message')";
-            mysqli_query($conn, $sqlS);
+            $sqlS = "INSERT INTO divyansh_chat (fromUser, toUser, message) VALUES (?,?,?)";
+            $stmtS = mysqli_stmt_init($conn);
+            if(mysqli_stmt_prepare($stmtS, $sqlS)){
+                mysqli_stmt_bind_param($stmtS, 'sss', $fromuser, $touser, $message);
+                mysqli_stmt_execute($stmtS);
+                $resultS = mysqli_stmt_get_result($stmtS);
+            }
         }
-
-
     }
 
     echo "<script type='text/javascript'>
@@ -83,16 +113,6 @@ if($_SESSION["Login"]==0){ header("location: login.php"); } if($_SESSION["Profil
             xmlhttpN.open("GET","chatUI.php",true);
             xmlhttpN.send();
         }
-        // function alluser(){
-        //     var xmlhttpN = new XMLHttpRequest();
-        //     xmlhttpN.onreadystatechange = function() {
-        //         if (this.readyState == 4 && this.status == 200) {
-        //             document.getElementById("abc").innerHTML = this.responseText;
-        //         }
-        //     };
-        //     xmlhttpN.open("GET","userList.php",true);
-        //     xmlhttpN.send();
-        // }
 
         setInterval(function(){ajax_request(),chatUI()}, 100);
         

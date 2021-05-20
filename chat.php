@@ -6,8 +6,13 @@ $date = "0";
 $count = 0;
 $fromUser = $_SESSION["Fromuser"];
 $toUser = $_SESSION["Touser"];
-$sql = "SELECT id, fromUser, toUser, message, date(date), time(date) FROM (SELECT * FROM divyansh_chat WHERE fromUser='$fromUser' or toUser='$fromUser') as a  WHERE fromUser='$toUser' or toUser='$toUser'";
-$result = mysqli_query($conn, $sql);
+$sql = "SELECT id, fromUser, toUser, message, date(date), time(date) FROM (SELECT * FROM divyansh_chat WHERE fromUser=? or toUser=?) as a  WHERE fromUser=? or toUser=?";
+$stmt = mysqli_stmt_init($conn);
+if(mysqli_stmt_prepare($stmt, $sql)){
+    mysqli_stmt_bind_param($stmt, 'ssss', $fromUser, $fromUser, $toUser, $toUser);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+}
 ?>
 
 <!DOCTYPE html>

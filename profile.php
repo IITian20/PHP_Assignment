@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once "config.php";
-    
+
     if(isset($_COOKIE["Username"])){
         if($_COOKIE["Username"]==$_SESSION["Username"]){
         }else{
@@ -9,14 +9,34 @@ require_once "config.php";
             setcookie("Password","", time() - 3600);
         }
     }
+    if(isset($_COOKIE["Name1"])){
+        setcookie("Name1", "", time()-3600);
+    }
+    if(isset($_COOKIE["Username1"])){
+        setcookie("Username1", "", time()-3600);
+    }
+    if(isset($_COOKIE["Date1"])){
+        setcookie("Date1", "", time()-3600);
+    }
+    if(isset($_COOKIE["pass1"])){
+        setcookie("pass1", "", time()-3600);
+    }
+    if(isset($_COOKIE["cpass1"])){
+        setcookie("cpass1", "", time()-3600);
+    }
 
     $username = $_SESSION["Username"];
-    $sql2 = "SELECT * FROM divyansh_user WHERE username='$username'";
-    $result2 = mysqli_query($conn, $sql2);
-    $num2 = mysqli_num_rows($result2);
-    if($num2 == 1){
-        $row2 = mysqli_fetch_assoc($result2);
-        $dob = $row2["dob"];
+    $sql2 = "SELECT * FROM divyansh_user WHERE username= ?";
+    $stmt2 = mysqli_stmt_init($conn);
+    if(mysqli_stmt_prepare($stmt2, $sql2)){
+        mysqli_stmt_bind_param($stmt2, 's', $username);
+        mysqli_stmt_execute($stmt2);
+        $result2 = mysqli_stmt_get_result($stmt2);
+        $num2 = mysqli_num_rows($result2);
+        if($num2 == 1){
+            $row2 = mysqli_fetch_assoc($result2);
+            $dob = $row2["dob"];
+        }
     }
     $name = $_SESSION["Name"];
     $email = $phone = "";
@@ -24,87 +44,27 @@ require_once "config.php";
     $value = "none";
     $value1 = "inline";
 
-    $sql1 = "SELECT * FROM divyansh_user_data WHERE username='$username'";
-    $result1 = mysqli_query($conn, $sql1);
-    $num1 = mysqli_num_rows($result1);
-    if($num1 == 1){
-        $row1 = mysqli_fetch_assoc($result1);
-        $email = $row1["email"];
-        $phone = $row1["number"];
-        $gender = $row1["gender"];
-        $image = $row1["profile_image"];
+    $sql1 = "SELECT * FROM divyansh_user_data WHERE username=?";
+    $stmt1 = mysqli_stmt_init($conn);
+    if(mysqli_stmt_prepare($stmt1, $sql1)){
+        mysqli_stmt_bind_param($stmt1, 's', $username);
+        mysqli_stmt_execute($stmt1);
+        $result1 = mysqli_stmt_get_result($stmt1);
+        $num1 = mysqli_num_rows($result1);
+        if($num1 == 1){
+            $row1 = mysqli_fetch_assoc($result1);
+            $email = $row1["email"];
+            $phone = $row1["number"];
+            $gender = $row1["gender"];
+        }
     }
     
     // Performing all checks
     if($_SERVER["REQUEST_METHOD"]== "POST"){   
        
-        $file = $_FILES['image'];
-        $fileName = $_FILES['image']['name'];
-        if($num1==0){
-            $fileName = $_FILES['image']['name'];
-            $fileTemp = $_FILES['image']['tmp_name'];
-            $fileError = $_FILES['image']['error'];
-            $fileSize = $_FILES['image']['size'];
-            $fileExt = explode('.',$fileName);
-            $fileExtF = strtolower(end($fileExt));
-        }
-        else{
-            if(empty($fileName)){
-                $fileName = $image;
-                $fileTemp = $image;
-                $fileError = 0;
-                $fileSize = 2;
-                $fileExt = explode('.',$fileName);
-                $fileExtF = strtolower(end($fileExt));
-            }
-            else{
-                $fileName = $_FILES['image']['name'];
-                $fileTemp = $_FILES['image']['tmp_name'];
-                $fileError = $_FILES['image']['error'];
-                $fileSize = $_FILES['image']['size'];
-                $fileExt = explode('.',$fileName);
-                $fileExtF = strtolower(end($fileExt));
-            }
-            
-        }
-        $allowed = array('jpg', 'jpeg', 'png');
-        if(in_array($fileExtF, $allowed)){
-            if($fileError == 0){
-                if($fileSize < 20000000){
-                    $fileNewName = $username.".".$fileExtF;
-                    $destination = "uploads/".$fileNewName;
-                    move_uploaded_file($fileTemp, $destination);
-                }
-                else{
-                    $image_err = "Your image size is too big.";
-                }
-            }
-            else{
-                $image_err = "Error uploading your image.";
-            }
-        }
-        else{
-            $image_err = "You can upload jpg, jpeg, png files only!!";
-        }
-        $phone_check = "/^(\+?91|\+?91[ -]|0)?[6|7|8|9][0-9]{9}$/";
-        $email_check = "/^[a-zA-Z0-9]+[a-zA-Z0-9\W_]*[a-zA-Z0-9]+@[a-zA-Z]+\.[A-z]+[\.A-z]*[a-zA-Z]+$/";
-        if(preg_match($email_check, $_POST["email"]) == 0){
-            $email_err = "Enter a valid email!";
-        }
-        else{
-            $email = $_POST["email"];
-            $email_err = "";
-        }
-        if(preg_match($phone_check, $_POST["phone"]) == 0){
-            $phone_err1 ="Enter valid mobile number, eg:";
-            $phone_err2 = "+918989239231, +91-8989239231,";
-            $phone_err3 = "918989239231, 08989239231 or";
-            $phone_err4 = "8989239231";
-        }
-        else{
-            $phone = $_POST["phone"];
-            $phone_err1 = "";
-        }
+        $email = $_COOKIE["Email1"];
+        $phone = $_COOKIE["Phone1"];
+        $image = $_COOKIE["Image1"];
         if(empty($_POST["gender"])){
             $gender_err = "Select gender.";
         }
@@ -115,18 +75,24 @@ require_once "config.php";
 
         // storing in database
         if($num1 == 0){
-            if(empty($email_err) && empty($phone_err1) && empty($gender_err) && empty($image_err)){
-                $sql = "INSERT INTO divyansh_user_data (username, number, email, gender, profile_image) VALUES ('$username', '$phone', '$email', '$gender', '$destination')";
-                if(mysqli_query($conn, $sql)){
+            if(!empty($email) && !empty($phone) && empty($gender_err) && !empty($image)){
+                $sql = "INSERT INTO divyansh_user_data (username, number, email, gender, profile_image) VALUES (?,?,?,?,?)";
+                $stmt = mysqli_stmt_init($conn);
+                if(mysqli_stmt_prepare($stmt, $sql)){
+                    mysqli_stmt_bind_param($stmt, 'sisss', $username, $phone, $email, $gender, $image);
+                    mysqli_stmt_execute($stmt);
                     $_SESSION["Profile"] = 1;
                    header("location: main.php");
                 }
             }
         }else{
             $image_err = "";
-            if(empty($email_err) && empty($phone_err1) && empty($gender_err) && empty($image_err)){
-                $sql = "UPDATE divyansh_user_data SET number='$phone', email='$email', gender='$gender', profile_image='$destination' WHERE username='$username'";
-                if(mysqli_query($conn, $sql)){
+            if(!empty($email) && !empty($phone) && empty($gender_err) && !empty($image)){
+                $sql = "UPDATE divyansh_user_data SET number=?, email=?, gender=?, profile_image=? WHERE username=?";
+                $stmt = mysqli_stmt_init($conn);
+                if(mysqli_stmt_prepare($stmt, $sql)){
+                    mysqli_stmt_bind_param($stmt, 'issss', $phone, $email, $gender, $image, $username);
+                    mysqli_stmt_execute($stmt);
                     $_SESSION["Profile"] = 1;
                     header("location: main.php");
                 }
@@ -134,8 +100,6 @@ require_once "config.php";
         }
         
     }
-
-    
 
     mysqli_close($conn);
 ?>
@@ -147,7 +111,78 @@ require_once "config.php";
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile</title>
+<script>
+    function email_request(){
+            var x ="";
+            var email = document.getElementById("email").value;
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                   x = this.responseText;
+                    if(x == ""){
+                        document.getElementById("email_err").style.display = "none";
+                        document.cookie = "Email1 = " + email;
+                    }
+                    else{
+                        document.getElementById("email_err").style.display = "inline";
+                        document.getElementById("email_err").innerHTML = x;
+                        document.cookie = "Email1 =; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+                    }
+                }
+            };
+            xmlhttp.open("POST", "emailCheck.php", true);
+            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.send("email="+email);
+        }
+       
+        function number_request(){
+            var y ="";
+            var number = document.getElementById("phone").value;
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                   y = this.responseText;
+                    if(y == ""){
+                        document.getElementById("err").style.display = "none";
+                        document.cookie = "Phone1 = " + number;
+                    }
+                    else{
+                        document.getElementById("err").style.display = "inline";
+                        document.getElementById("err").innerHTML = y;
+                        document.cookie = "Phone1 =; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+                    }
+                }
+            };
+            xmlhttp.open("POST", "numberCheck.php", true);
+            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.send("number="+number);
+        }
+        function image_request(){
+            var x ="";
+            var image = document.getElementById("image")
+            var frmData = new FormData();
+            var xmlhttp = new XMLHttpRequest();
 
+            for(const file of image.files){
+                frmData.append("image[]", file);
+            }
+
+            xmlhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                   x = this.responseText;
+                    if(x == ""){
+                        document.getElementById("image_err").style.display = "none";
+                    }
+                    else{
+                        document.getElementById("image_err").style.display = "inline";
+                        document.getElementById("image_err").innerHTML = x;
+                    }
+                }
+            };
+            xmlhttp.open("POST", "profileCheck.php", true);
+            xmlhttp.send(frmData);
+        }
+</script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&display=swap');
@@ -167,13 +202,13 @@ require_once "config.php";
             font-size: 20px;
         }
         #email_err{
-            display: <?php if(empty($email_err)){ echo $value; } else { echo $value1;}  ?>;
+            display: none;
         }
-        .err{
-            display: <?php if(empty($phone_err1)){ echo $value; } else { echo "block";}  ?>;
+        #err{
+            display: none;
         }
         #phone_err{
-            display: <?php if(empty($phone_err1)){ echo $value; } else { echo $value1;}  ?>;
+            display: inline;
         }
         #gender_err{
             display: <?php if(empty($gender_err)){ echo $value; } else { echo $value1;}  ?>;
@@ -255,7 +290,7 @@ require_once "config.php";
     <?php if($_SESSION["Login"]==0){ header("location: login.php"); } ?>
     <h1 class="h1"><span class="heading">Update Profile</span></h1><br><br>
     <div class="form">
-        <form action="" method="POST" enctype="multipart/form-data">
+        <form action="" method="POST" enctype="multipart/form-data" autocomplete="off">
             <div class="sign_up_box">
                     <label class="label" for="name">
                         Name:
@@ -276,21 +311,18 @@ require_once "config.php";
                     <label class="label" for="phone">
                         Mobile Number:
                     </label><br><br>
-                    <input  type="text" id="phone" name="phone" size="15" placeholder="Mobile Number" value="<?php if(empty($phone_err1)){ echo $phone;} ?>">
+                    <input  type="text" id="phone" name="phone" size="15" placeholder="Mobile Number" value="<?php echo $phone ?>" onkeyup="number_request()">
                     <br><br>
-                    <div class="err">
-                    <p id="phone_err"><?php if(!empty($phone_err1)){ echo $phone_err1; } ?></p><br><br><br>
-                    <p id="phone_err"><?php if(!empty($phone_err2)){ echo $phone_err2; } ?></p><br><br><br>
-                    <p id="phone_err"><?php if(!empty($phone_err3)){ echo $phone_err3; } ?></p><br><br><br>
-                    <p id="phone_err"><?php if(!empty($phone_err4)){ echo $phone_err4; } ?></p>
+                    <div id="err">
+                    
                     </div>
                     <br><br>
                     <label class="label" for="email">
                         Email:
                     </label><br><br>
-                    <input  type="test" id="email" name="email" size="15" placeholder="Email" value="<?php if(empty($email_err)){ echo $email;} ?>">
-                    <br><br>
-                    <p id="email_err"><?php if(!empty($email_err)){ echo $email_err; } ?></p>
+                    <input  type="test" id="email" name="email" size="15" placeholder="Email" value="<?php echo $email; ?>" onkeyup="email_request()">
+                    <br>
+                    <p id="email_err"></p>
                     <br><br>
                     <label class="label">
                         Gender:
@@ -311,7 +343,7 @@ require_once "config.php";
                     <label class="label" for="image">
                         Image:
                     </label><br><br>
-                    <input  type="file" id="image" name="image" value="<?php if($num1==1){ echo $image;} ?>">
+                    <input  type="file" id="image" name="image" onchange="image_request()">
                     <br><br>
                     <p id="image_err"><?php if(!empty($image_err)){ echo $image_err; } ?></p>
 
