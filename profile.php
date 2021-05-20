@@ -81,7 +81,6 @@ require_once "config.php";
                 if(mysqli_stmt_prepare($stmt, $sql)){
                     mysqli_stmt_bind_param($stmt, 'sisss', $username, $phone, $email, $gender, $image);
                     mysqli_stmt_execute($stmt);
-                    $_SESSION["Profile"] = 1;
                    header("location: main.php");
                 }
             }
@@ -93,7 +92,6 @@ require_once "config.php";
                 if(mysqli_stmt_prepare($stmt, $sql)){
                     mysqli_stmt_bind_param($stmt, 'issss', $phone, $email, $gender, $image, $username);
                     mysqli_stmt_execute($stmt);
-                    $_SESSION["Profile"] = 1;
                     header("location: main.php");
                 }
             }

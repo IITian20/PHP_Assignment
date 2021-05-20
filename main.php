@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once "config.php";
-if($_SESSION["Login"]==0){ header("location: login.php"); } if($_SESSION["Profile"]==0){ header("location: profile.php"); }
+if($_SESSION["Login"]==0){ header("location: login.php"); }
     $username = $_SESSION["Username"];
     $_SESSION["Fromuser"] = $username;
     $name = $_SESSION["Name"];
@@ -12,9 +12,6 @@ if($_SESSION["Login"]==0){ header("location: login.php"); } if($_SESSION["Profil
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
         $num = mysqli_num_rows($result);
-    }
-    else{
-        $num = 0;
     }
     if(isset($_COOKIE["Name1"])){
         setcookie("Name1", "", time()-3600);

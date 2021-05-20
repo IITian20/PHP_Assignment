@@ -64,7 +64,6 @@ require_once "config.php";
                         if($num1 == 1){
                             header("location:main.php");
                         }else{
-                            $_SESSION["Profile"] = 0;
                             header('location: profile.php');
                         }
                     }

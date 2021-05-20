@@ -57,10 +57,8 @@ require_once "config.php";
                     $result1 = mysqli_stmt_get_result($stmt1);
                     $num = mysqli_num_rows($result1);
                     if($num == 1){
-                        $_SESSION["Profile"] = 1;
                         header("location:main.php");
                     }else{
-                        $_SESSION["Profile"] = 0;
                         header('location: profile.php');
                     }
                 }
