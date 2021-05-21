@@ -49,19 +49,7 @@ require_once "config.php";
                 if(isset($_COOKIE["cpass1"])){
                     setcookie("cpass1", "", time()-3600);
                 }
-                $sql1 = "SELECT * FROM divyansh_user_data WHERE username=?";
-                $stmt1 = mysqli_stmt_init($conn);
-                if(mysqli_stmt_prepare($stmt1, $sql1)){
-                    mysqli_stmt_bind_param($stmt1, 's', $username);
-                    mysqli_stmt_execute($stmt1);
-                    $result1 = mysqli_stmt_get_result($stmt1);
-                    $num = mysqli_num_rows($result1);
-                    if($num == 1){
-                        header("location:main.php");
-                    }else{
-                        header('location: profile.php');
-                    }
-                }
+                header('location: profile.php');
             }
         }
     }
@@ -305,7 +293,7 @@ require_once "config.php";
                     <label class="label" for="date">
                         Date of birth:
                     </label><br>
-                    <input  type="date" id="date" name="date" maxlength="30" size="15" placeholder="dd-mm-yyyy" value="<?php $date ?>" onkeyup="date_request()">
+                    <input  type="date" id="date" name="date" maxlength="30" size="15" placeholder="dd-mm-yyyy" value="<?php $date ?>" onchange="date_request()">
                     <br>
                     <p id="date_err"></p>
                     <label class="label" for="password">
